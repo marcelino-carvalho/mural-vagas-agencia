@@ -282,8 +282,14 @@
             border-radius: 0.375rem;
             padding: 12px;
             background: #fff;
+            font-family: Arial, sans-serif;
             white-space: pre-wrap;
             overflow-y: auto;
+        }
+
+        .editor-surface,
+        .editor-surface * {
+            font-family: Arial, sans-serif !important;
         }
 
         .editor-surface:focus {
@@ -392,11 +398,12 @@
             body.print-mutirao-single .print-detail-wrap {
                 height: 100%;
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
             }
 
-            body.print-mutirao-single .print-detail {
-                font-size: 28pt;
+            body.print-mutirao-single #print-area .print-detail,
+            body.print-mutirao-single #print-area .print-detail * {
+                font-size: var(--mutirao-print-detail-size, 28pt) !important;
                 line-height: 1.32;
                 color: #1f2d3a;
                 white-space: pre-wrap;
@@ -804,6 +811,54 @@
         document.execCommand('bold');
     }
 
+    function escaparHtml(valor) {
+        return (valor || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function normalizarHtmlInfoMutirao(html) {
+        const root = document.createElement('div');
+        root.innerHTML = html || '';
+
+        function walk(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                return escaparHtml(node.textContent || '');
+            }
+
+            if (node.nodeType !== Node.ELEMENT_NODE) {
+                return '';
+            }
+
+            const tag = node.tagName.toLowerCase();
+            const fontWeight = (node.style && node.style.fontWeight ? node.style.fontWeight : '').toLowerCase();
+            const isBold = tag === 'b' || tag === 'strong' || fontWeight === 'bold' || Number(fontWeight) >= 600;
+            const children = Array.from(node.childNodes).map(walk).join('');
+
+            if (tag === 'br') {
+                return '<br>';
+            }
+
+            if (tag === 'div' || tag === 'p') {
+                return children ? `${children}<br>` : '<br>';
+            }
+
+            return isBold ? `<strong>${children}</strong>` : children;
+        }
+
+        return Array.from(root.childNodes)
+            .map(walk)
+            .join('')
+            .replace(/(<br>\s*)+$/i, '');
+    }
+
+    function aplicarFontePadraoInfoMutirao() {
+        const editor = document.getElementById('infoMutirao');
+        editor.innerHTML = normalizarHtmlInfoMutirao(editor.innerHTML);
+    }
+
     function normalizarBusca(valor) {
         return (valor || '')
             .normalize('NFD')
@@ -921,6 +976,7 @@
         }
 
         if (moduloAtual === 'MUTIROES') {
+            aplicarFontePadraoInfoMutirao();
             const info = document.getElementById('infoMutirao').innerHTML;
             dados.titulo = '';
             dados.salario = '';
@@ -954,7 +1010,7 @@
         document.getElementById('empresa').value = v.empresa || '';
         document.getElementById('telaMutirao').value = v.tela || '1';
         document.getElementById('titulo').value = v.titulo || '';
-        document.getElementById('infoMutirao').innerHTML = v.atribuicoes || '';
+        document.getElementById('infoMutirao').innerHTML = normalizarHtmlInfoMutirao(v.atribuicoes || '');
         document.getElementById('salario').value = v.salario || '';
         document.getElementById('escolaridade').value = v.escolaridade || '';
         document.getElementById('local').value = v.local || '';
@@ -992,6 +1048,25 @@
         document.getElementById('busca-vagas').value = '';
         renderizarTabelaVagas();
     });
+
+    document.getElementById('infoMutirao').addEventListener('paste', function(event) {
+        event.preventDefault();
+        const clipboard = event.clipboardData || window.clipboardData;
+        const html = clipboard.getData('text/html');
+        const text = clipboard.getData('text/plain');
+        const conteudoNormalizado = html
+            ? normalizarHtmlInfoMutirao(html)
+            : escaparHtml(text).replace(/\r?\n/g, '<br>');
+        document.execCommand('insertHTML', false, conteudoNormalizado);
+    });
+
+    document.getElementById('infoMutirao').addEventListener('keydown', function(event) {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        document.execCommand('insertHTML', false, '<br>');
+    });
+
+    document.getElementById('infoMutirao').addEventListener('blur', aplicarFontePadraoInfoMutirao);
 
     function montarCardsImpressao() {
         const grid = document.getElementById('print-grid');
@@ -1048,6 +1123,114 @@
         window.print();
     }
 
+    function ajustarTextoImpressaoMutirao(card) {
+        const detail = card.querySelector('.print-detail');
+        const wrap = card.querySelector('.print-detail-wrap');
+        if (!detail || !wrap) return;
+
+        const measureStyleId = 'mutirao-print-measure-style';
+        let measureStyle = document.getElementById(measureStyleId);
+        if (!measureStyle) {
+            measureStyle = document.createElement('style');
+            measureStyle.id = measureStyleId;
+            document.head.appendChild(measureStyle);
+        }
+
+        measureStyle.textContent = `
+            body.print-mutirao-single #print-area {
+                display: block !important;
+                width: 285mm !important;
+                height: 198mm !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: hidden !important;
+            }
+            body.print-mutirao-single #print-area,
+            body.print-mutirao-single #print-area * {
+                font-family: Arial, sans-serif !important;
+                font-size: 25pt !important;
+            }
+            body.print-mutirao-single #print-kicker,
+            body.print-mutirao-single #print-heading,
+            body.print-mutirao-single #print-description {
+                display: none !important;
+            }
+            body.print-mutirao-single .print-preview-grid {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 0 !important;
+            }
+            body.print-mutirao-single .print-vaga-card {
+                width: 100% !important;
+                height: 198mm !important;
+                min-height: 198mm !important;
+                padding: 10mm 10mm 10mm 12mm !important;
+                box-sizing: border-box !important;
+                display: grid !important;
+                grid-template-rows: auto 1fr !important;
+                overflow: hidden !important;
+            }
+            body.print-mutirao-single .print-card-top {
+                display: flex !important;
+                justify-content: space-between !important;
+                gap: 10px !important;
+                align-items: flex-start !important;
+                margin-bottom: 8mm !important;
+            }
+            body.print-mutirao-single #print-area .print-code {
+                font-size: 40pt !important;
+                font-weight: 900 !important;
+                padding: 0 !important;
+                background: transparent !important;
+                color: #000 !important;
+            }
+            body.print-mutirao-single .print-location {
+                font-size: 24pt !important;
+                font-weight: 900 !important;
+                color: #000 !important;
+                letter-spacing: 0.03em !important;
+            }
+            body.print-mutirao-single .print-detail-wrap {
+                height: 100% !important;
+                min-height: 0 !important;
+                display: flex !important;
+                align-items: flex-start !important;
+                overflow: hidden !important;
+            }
+            body.print-mutirao-single #print-area .print-detail,
+            body.print-mutirao-single #print-area .print-detail * {
+                font-size: var(--mutirao-print-detail-size, 28pt) !important;
+                line-height: 1.32 !important;
+                white-space: pre-wrap !important;
+                margin: 0 !important;
+            }
+        `;
+
+        const maxSize = 28;
+        const minSize = 12;
+        const safetyGap = 24;
+        let selectedSize = maxSize;
+        document.documentElement.style.setProperty('--mutirao-print-detail-size', `${maxSize}pt`);
+
+        for (let size = maxSize; size >= minSize; size -= 1) {
+            document.documentElement.style.setProperty('--mutirao-print-detail-size', `${size}pt`);
+            detail.offsetHeight;
+            const detailRect = detail.getBoundingClientRect();
+            const wrapRect = wrap.getBoundingClientRect();
+            const cardRect = card.getBoundingClientRect();
+            const detailFits = detail.scrollHeight <= Math.max(0, wrap.clientHeight - safetyGap);
+            const rectFits = detailRect.bottom <= Math.min(wrapRect.bottom, cardRect.bottom) - safetyGap;
+            const widthFits = detail.scrollWidth <= wrap.clientWidth;
+            if (detailFits && rectFits && widthFits) {
+                selectedSize = size;
+                break;
+            }
+            selectedSize = size;
+        }
+
+        document.documentElement.style.setProperty('--mutirao-print-detail-size', `${selectedSize}pt`);
+    }
+
     function imprimirCardMutirao(id) {
         const vaga = vagasCache.find(item => item.id === id);
         if (!vaga || moduloAtual !== 'MUTIROES') return;
@@ -1075,6 +1258,7 @@
             </div>
         `;
         grid.appendChild(card);
+        ajustarTextoImpressaoMutirao(card);
 
         const styleId = 'mutirao-print-page-style';
         let style = document.getElementById(styleId);
@@ -1087,7 +1271,10 @@
 
         const limpar = () => {
             document.body.classList.remove('print-mutirao-single');
+            document.documentElement.style.removeProperty('--mutirao-print-detail-size');
             style.textContent = '';
+            const measureStyle = document.getElementById('mutirao-print-measure-style');
+            if (measureStyle) measureStyle.textContent = '';
             window.removeEventListener('afterprint', limpar);
         };
         window.addEventListener('afterprint', limpar);
