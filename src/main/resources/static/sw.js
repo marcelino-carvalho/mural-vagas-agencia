@@ -1,4 +1,4 @@
-const CACHE_VERSION = "mural-v2";
+const CACHE_VERSION = "mural-v6";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
 

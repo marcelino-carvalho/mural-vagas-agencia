@@ -192,7 +192,7 @@
         border-bottom: 1px solid #eee; padding: 15px 0;
     }
     .info-item strong { display: block; color: #2c3e50; font-size: 1.2em; }
-    .info-item small { color: #666; }
+    .info-item small { color: #666; display: block; white-space: pre-line; }
     .info-alert {
         padding: 8px 12px;
         margin: 10px 14px 0;
@@ -1040,7 +1040,6 @@
   document.getElementById('btn-lock').addEventListener('click', alternarInteractionLock);
   document.addEventListener('fullscreenchange', atualizarBotaoTelaCheia);
   document.addEventListener('webkitfullscreenchange', atualizarBotaoTelaCheia);
-  document.addEventListener('pointerdown', tentarTelaCheia, { once: true });
   atualizarAlturaApp();
   atualizarBotaoTelaCheia();
   atualizarQrRodape();

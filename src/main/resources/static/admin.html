@@ -248,6 +248,7 @@
             color: #405164;
         }
 
+        .curso-item,
         .processo-item {
             border: 1px solid #e6edf5;
             border-radius: 10px;
@@ -255,15 +256,25 @@
             margin-bottom: 10px;
         }
 
+        .curso-item textarea.form-control {
+            min-height: 104px;
+            resize: vertical;
+        }
+
         .info-row {
             display: flex;
             gap: 8px;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 8px;
         }
 
         .info-row .form-control {
             flex: 1;
+        }
+
+        .info-row textarea.form-control {
+            min-height: 76px;
+            resize: vertical;
         }
 
         .mutirao-only {
@@ -707,6 +718,8 @@
     let editId = null;
     let vagasCache = [];
     let infosCache = null;
+    let infosDirty = false;
+    let populandoInfos = false;
     let painelVagasView = 'vagas';
     let termoBusca = '';
 
@@ -1290,27 +1303,48 @@
         return input;
     }
 
+    function criarTextarea(placeholder, className, value, rows = 3) {
+        const textarea = document.createElement('textarea');
+        textarea.className = `form-control ${className}`;
+        textarea.placeholder = placeholder;
+        textarea.rows = rows;
+        textarea.value = value || '';
+        return textarea;
+    }
+
+    function marcarInfosAlteradas() {
+        if (!populandoInfos) {
+            infosDirty = true;
+        }
+    }
+
     function criarBotaoRemover() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'btn btn-outline-danger btn-sm';
         btn.innerHTML = '<i class="bi bi-x-lg"></i>';
-        btn.addEventListener('click', () => btn.parentElement.remove());
+        btn.addEventListener('click', () => {
+            btn.parentElement.remove();
+            marcarInfosAlteradas();
+        });
         return btn;
     }
 
-    function addCurso(nome = '', detalhe = '') {
-        const row = document.createElement('div');
-        row.className = 'info-row';
-        row.append(
-            criarInput('Curso', 'curso-nome', nome),
-            criarInput('Detalhes', 'curso-detalhe', detalhe),
-            criarBotaoRemover()
-        );
-        document.getElementById('cursos-list').appendChild(row);
+    function addCurso(nome = '', detalhe = '', marcarAlteracao = true) {
+        const wrap = document.createElement('div');
+        wrap.className = 'curso-item';
+
+        const nomeInput = criarInput('Nome do curso', 'curso-nome', nome);
+        const detalheArea = criarTextarea('Informações do curso (uma linha por item)', 'curso-detalhe', detalhe, 4);
+        const btnRemover = criarBotaoRemover();
+        btnRemover.className = 'btn btn-outline-danger btn-sm w-100';
+
+        wrap.append(nomeInput, detalheArea, btnRemover);
+        document.getElementById('cursos-list').appendChild(wrap);
+        if (marcarAlteracao) marcarInfosAlteradas();
     }
 
-    function addProcesso(empresa = '', data = '', texto = '') {
+    function addProcesso(empresa = '', data = '', texto = '', marcarAlteracao = true) {
         const wrap = document.createElement('div');
         wrap.className = 'processo-item';
 
@@ -1327,9 +1361,10 @@
 
         wrap.append(empresaInput, dataInput, textoArea, btnRemover);
         document.getElementById('processos-list').appendChild(wrap);
+        if (marcarAlteracao) marcarInfosAlteradas();
     }
 
-    function addCronograma(data = '', evento = '') {
+    function addCronograma(data = '', evento = '', marcarAlteracao = true) {
         const row = document.createElement('div');
         row.className = 'info-row';
         row.append(
@@ -1338,28 +1373,38 @@
             criarBotaoRemover()
         );
         document.getElementById('cronograma-list').appendChild(row);
+        if (marcarAlteracao) marcarInfosAlteradas();
     }
 
     function carregarInfos() {
-        fetch(API_INFOS)
+        fetch(API_INFOS, { cache: 'no-store' })
             .then(res => res.json())
             .then(d => {
-                infosCache = d || {};
-                const cursos = Array.isArray(d.cursos) ? d.cursos : [];
-                const processos = Array.isArray(d.processos) ? d.processos : [];
-                const cronograma = Array.isArray(d.cronograma) ? d.cronograma : [];
-                document.getElementById('mutiraoTituloTela1').value = d.mutiraoTituloTela1 || '';
-                document.getElementById('mutiraoTituloTela2').value = d.mutiraoTituloTela2 || '';
-                document.getElementById('mutiraoTemaCor').value = d.mutiraoTemaCor || '#1f4f8a';
-                document.getElementById('mutiraoRodapeCor').value = d.mutiraoRodapeCor || '#6889ec';
+                const dadosRecebidos = d || {};
+                infosCache = dadosRecebidos;
+                if (infosDirty) {
+                    return;
+                }
+                const cursos = Array.isArray(dadosRecebidos.cursos) ? dadosRecebidos.cursos : [];
+                const processos = Array.isArray(dadosRecebidos.processos) ? dadosRecebidos.processos : [];
+                const cronograma = Array.isArray(dadosRecebidos.cronograma) ? dadosRecebidos.cronograma : [];
+                populandoInfos = true;
+                try {
+                    document.getElementById('mutiraoTituloTela1').value = dadosRecebidos.mutiraoTituloTela1 || '';
+                    document.getElementById('mutiraoTituloTela2').value = dadosRecebidos.mutiraoTituloTela2 || '';
+                    document.getElementById('mutiraoTemaCor').value = dadosRecebidos.mutiraoTemaCor || '#1f4f8a';
+                    document.getElementById('mutiraoRodapeCor').value = dadosRecebidos.mutiraoRodapeCor || '#6889ec';
 
-                document.getElementById('cursos-list').innerHTML = '';
-                document.getElementById('processos-list').innerHTML = '';
-                document.getElementById('cronograma-list').innerHTML = '';
+                    document.getElementById('cursos-list').innerHTML = '';
+                    document.getElementById('processos-list').innerHTML = '';
+                    document.getElementById('cronograma-list').innerHTML = '';
 
-                (cursos.length ? cursos : [{}]).forEach(c => addCurso(c.nome || '', c.detalhe || ''));
-                (processos.length ? processos : [{}]).forEach(p => addProcesso(p.empresa || '', p.data || '', (p.texto || []).join('\n')));
-                (cronograma.length ? cronograma : [{}]).forEach(c => addCronograma(c.data || '', c.evento || ''));
+                    (cursos.length ? cursos : [{}]).forEach(c => addCurso(c.nome || '', c.detalhe || '', false));
+                    (processos.length ? processos : [{}]).forEach(p => addProcesso(p.empresa || '', p.data || '', (p.texto || []).join('\n'), false));
+                    (cronograma.length ? cronograma : [{}]).forEach(c => addCronograma(c.data || '', c.evento || '', false));
+                } finally {
+                    populandoInfos = false;
+                }
             });
     }
 
@@ -1374,7 +1419,7 @@
             mutiraoRodapeCor: document.getElementById('mutiraoRodapeCor').value || '#6889ec'
         };
 
-        document.querySelectorAll('#cursos-list .info-row').forEach(row => {
+        document.querySelectorAll('#cursos-list .curso-item').forEach(row => {
             const nome = row.querySelector('.curso-nome').value.trim();
             const detalhe = row.querySelector('.curso-detalhe').value.trim();
             if (nome || detalhe) dados.cursos.push({ nome, detalhe });
@@ -1407,9 +1452,13 @@
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(dados)
-        }).then(() => {
+        }).then(res => {
+            if (!res.ok) throw new Error('Falha ao salvar informacoes');
             infosCache = dados;
+            infosDirty = false;
             alert('Informações da TV atualizadas.');
+        }).catch(() => {
+            alert('Não foi possível salvar as informações. Tente novamente.');
         });
     }
 
@@ -1439,11 +1488,16 @@
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(dados)
-        }).then(() => {
+        }).then(res => {
+            if (!res.ok) throw new Error('Falha ao salvar titulos');
             infosCache = dados;
             alert('Títulos dos mutirões atualizados.');
+        }).catch(() => {
+            alert('Não foi possível salvar os títulos dos mutirões. Tente novamente.');
         });
     }
+
+    document.getElementById('formInfos').addEventListener('input', marcarInfosAlteradas);
 
     carregarInfos();
     selecionarModulo('VAGAS', false);
