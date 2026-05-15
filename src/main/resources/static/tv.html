@@ -236,6 +236,42 @@
         border-left: 3px solid #1f2b36;
         padding-left: 10px;
     }
+    .calendario-imagem {
+        margin-top: 18px;
+        min-height: 180px;
+        flex: 1 1 auto;
+        border: 2px dashed #d63384;
+        border-radius: 10px;
+        background: #fff5fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        color: #9f2362;
+        font-size: 18px;
+        font-weight: 800;
+        text-align: center;
+        text-transform: uppercase;
+    }
+    .calendario-body {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+    .calendario-imagem.has-image {
+        border: none;
+        background: transparent;
+    }
+    .calendario-imagem.has-image span {
+        display: none;
+    }
+    .calendario-imagem img {
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        object-fit: contain;
+        display: block;
+    }
 
     .nav-buttons {
         position: fixed;
@@ -767,8 +803,12 @@
           <div class="info-header bg-cronograma">
               <i class="bi bi-calendar-event-fill"></i> Calendário Institucional
           </div>
-          <div class="info-body">
+          <div class="info-body calendario-body">
               ${cronogramaHtml}
+              <div class="calendario-imagem">
+                  <img src="/calendario-institucional.png" alt="Imagem do calendario institucional" onload="this.parentElement.classList.add('has-image')" onerror="this.style.display='none'">
+                  <span>Imagem do calendario institucional</span>
+              </div>
           </div>
       </div>
       `;
