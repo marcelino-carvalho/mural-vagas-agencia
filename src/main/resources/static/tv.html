@@ -237,9 +237,9 @@
         padding-left: 10px;
     }
     .calendario-imagem {
-        margin-top: 18px;
-        min-height: 180px;
-        flex: 1 1 auto;
+        margin-top: 12px;
+        height: 700px;
+        flex: 0 0 700px;
         border: 2px dashed #d63384;
         border-radius: 10px;
         background: #fff5fa;
@@ -271,6 +271,11 @@
         max-height: none;
         object-fit: contain;
         display: block;
+    }
+    .calendario-extra {
+        margin-top: 120px;
+        height: 700px;
+        flex: 0 0 700px;
     }
 
     .nav-buttons {
@@ -787,6 +792,10 @@
               <div class="flex-grow-1">
                   ${cursosHtml}
               </div>
+              <div class="calendario-imagem">
+                  <img src="/calendario-institucional.png" alt="Imagem do calendario institucional" onload="this.parentElement.classList.add('has-image')" onerror="this.style.display='none'">
+                  <span>Imagem do calendario institucional</span>
+              </div>
           </div>
        </div>
 
@@ -805,9 +814,9 @@
           </div>
           <div class="info-body calendario-body">
               ${cronogramaHtml}
-              <div class="calendario-imagem">
-                  <img src="/calendario-institucional.png" alt="Imagem do calendario institucional" onload="this.parentElement.classList.add('has-image')" onerror="this.style.display='none'">
-                  <span>Imagem do calendario institucional</span>
+              <div class="calendario-imagem calendario-extra">
+                  <img src="/calendario-institucional-extra.png" alt="Imagem adicional do calendario institucional" onload="this.parentElement.classList.add('has-image')" onerror="this.style.display='none'">
+                  <span>Imagem adicional do calendario institucional</span>
               </div>
           </div>
       </div>
