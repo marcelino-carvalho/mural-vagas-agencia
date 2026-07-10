@@ -19,6 +19,8 @@ public class VagaController {
     private VagaRepository repository; // Injeta o repositório que vc acabou de criar
     @Autowired
     private VagaSseService sseService;
+    @Autowired
+    private PanelAccessWindow accessWindow;
 
     // 1. Cadastrar uma vaga (POST)
     // Quem acessar isso enviando dados, vai salvar no banco
@@ -33,11 +35,13 @@ public class VagaController {
     // 2. Listar TODAS as vagas (GET)
     @GetMapping
     public List<Vaga> listarTodas() {
+        accessWindow.requireOpen();
         return repository.findByModuloOrderByValidadeAsc(MODULO_VAGAS);
     }
 
     @GetMapping("/modulo")
     public List<Vaga> listarPorModulo(@RequestParam String tipo) {
+        accessWindow.requireOpen();
         String modulo = normalizarModulo(tipo);
         return ordenarPorModulo(repository.findByModuloOrderByValidadeAsc(modulo), modulo);
     }
@@ -46,6 +50,7 @@ public class VagaController {
     // Ex: localhost:8080/vagas/filtro?tipo=CONVENCIONAL
     @GetMapping("/filtro")
     public List<Vaga> listarPorCategoria(@RequestParam String tipo) {
+        accessWindow.requireOpen();
         return repository.findByCategoriaOrderByValidadeAsc(tipo);
     }
     // 4. Deletar Vaga (DELETE)
@@ -89,6 +94,7 @@ public class VagaController {
     // 5. Gerar Relatório PDF (Compacto e Agrupado)
     @GetMapping("/relatorio")
     public void gerarRelatorio(jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        accessWindow.requireOpen();
         response.setContentType("application/pdf");
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=relatorio_vagas.pdf";

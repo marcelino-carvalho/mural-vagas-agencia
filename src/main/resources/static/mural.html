@@ -336,6 +336,14 @@
   let sessionToken = null;
   const CACHE_TTL_MS = 60000;
   const CACHE_KEY_PREFIX = "mural_data_cache_v1:";
+  const PAINEL_INICIO_MINUTOS = (7 * 60) + 10;
+  const PAINEL_FIM_MINUTOS = (17 * 60) + 10;
+
+  function painelPodeConsultar(agora = new Date()) {
+    const dia = agora.getDay();
+    const minutos = (agora.getHours() * 60) + agora.getMinutes();
+    return dia >= 1 && dia <= 5 && minutos >= PAINEL_INICIO_MINUTOS && minutos < PAINEL_FIM_MINUTOS;
+  }
 
   function atualizarAlturaApp() {
     const altura = window.visualViewport ? window.visualViewport.height : window.innerHeight;
@@ -541,6 +549,15 @@
   }
 
   async function carregarDados() {
+    if (!painelPodeConsultar()) {
+      const cache = lerCacheMural(sessionToken, Number.MAX_SAFE_INTEGER);
+      if (cache) {
+        aplicarDadosMural(cache);
+        statusEl.textContent = "Fora do horario de consulta. Exibindo dados em cache.";
+        return;
+      }
+      throw new Error("Consultas disponiveis de segunda a sexta, das 07:10 as 17:10.");
+    }
     const res = await apiFetch(`/api/mural/data?t=${encodeURIComponent(sessionToken)}`);
     if (!res.ok) throw new Error("Acesso negado");
     const payload = await res.json();

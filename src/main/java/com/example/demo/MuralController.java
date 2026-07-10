@@ -33,11 +33,13 @@ public class MuralController {
     private final VagaRepository vagaRepository;
     private final InfoController infoController;
     private final MuralTokenService tokenService;
+    private final PanelAccessWindow accessWindow;
 
-    public MuralController(VagaRepository vagaRepository, InfoController infoController, MuralTokenService tokenService) {
+    public MuralController(VagaRepository vagaRepository, InfoController infoController, MuralTokenService tokenService, PanelAccessWindow accessWindow) {
         this.vagaRepository = vagaRepository;
         this.infoController = infoController;
         this.tokenService = tokenService;
+        this.accessWindow = accessWindow;
     }
 
     @GetMapping("/token")
@@ -71,6 +73,7 @@ public class MuralController {
     public MuralDataResponse data(@RequestParam("t") String token,
                                   @RequestParam(name = "m", required = false) String modulo,
                                   HttpServletRequest request) {
+        accessWindow.requireOpen();
         MuralTokenService.ValidationResult result = tokenService.validate(token, resolveClientIp(request), "SESSION");
         if (!result.valid()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso do mural invalido para esta rede.");

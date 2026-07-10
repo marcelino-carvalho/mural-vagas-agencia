@@ -313,7 +313,18 @@
     document.documentElement.style.setProperty('--footer-bg', rodape);
   }
 
+  const PAINEL_INICIO_MINUTOS = (7 * 60) + 10;
+  const PAINEL_FIM_MINUTOS = (17 * 60) + 10;
+  let sse = null;
+
+  function painelPodeConsultar(agora = new Date()) {
+    const dia = agora.getDay();
+    const minutos = (agora.getHours() * 60) + agora.getMinutes();
+    return dia >= 1 && dia <= 5 && minutos >= PAINEL_INICIO_MINUTOS && minutos < PAINEL_FIM_MINUTOS;
+  }
+
   async function carregarTitulos() {
+    if (!painelPodeConsultar()) return;
     try {
       const res = await fetch('/api/infos');
       const infos = await res.json();
@@ -327,6 +338,7 @@
   }
 
   async function carregarVagas() {
+    if (!painelPodeConsultar()) return;
     const res = await fetch(`/api/vagas/modulo?tipo=${MODULO}`);
     vagasCache = await res.json();
     possuiTela2 = Array.isArray(vagasCache) && vagasCache.some(vaga => (vaga.tela || '1') === '2');
@@ -414,6 +426,7 @@
   }
 
   async function atualizarQrRodape() {
+    if (!painelPodeConsultar()) return;
     try {
       const res = await fetch('/api/mural/token?m=MUTIROES');
       const dados = await res.json();
@@ -424,6 +437,11 @@
   }
 
   async function atualizarTudo() {
+    if (!painelPodeConsultar()) {
+      renderizarTela();
+      animarBarra();
+      return;
+    }
     try {
       await carregarTitulos();
       await carregarVagas();
@@ -434,9 +452,19 @@
     }
   }
 
-  const sse = new EventSource('/api/vagas/stream');
-  sse.onmessage = () => atualizarTudo();
-  sse.onerror = () => {};
+  function atualizarConexaoSse() {
+    if (!painelPodeConsultar()) {
+      if (sse) {
+        sse.close();
+        sse = null;
+      }
+      return;
+    }
+    if (sse) return;
+    sse = new EventSource('/api/vagas/stream');
+    sse.onmessage = () => atualizarTudo();
+    sse.onerror = () => {};
+  }
 
   document.getElementById('btn-prev').addEventListener('click', () => irParaTela(-1));
   document.getElementById('btn-next').addEventListener('click', () => irParaTela(1));
@@ -448,6 +476,8 @@
   setInterval(atualizarQrRodape, TEMPO_ATUALIZAR_QR);
   setInterval(atualizarTudo, TEMPO_ATUALIZAR_DADOS);
   setInterval(alternarTela, TEMPO_POR_TELA);
+  atualizarConexaoSse();
+  setInterval(atualizarConexaoSse, 60000);
 </script>
 </body>
 </html>

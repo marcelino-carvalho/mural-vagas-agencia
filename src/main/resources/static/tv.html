@@ -464,6 +464,8 @@
   const AUTO_REFRESH_INATIVIDADE_MS = 10 * 60 * 1000;
   const KEEPALIVE_MS = 5 * 60 * 1000;
   const STORAGE_KEY_PREFIX = "tv_cache_v1:";
+  const PAINEL_INICIO_MINUTOS = (7 * 60) + 10;
+  const PAINEL_FIM_MINUTOS = (17 * 60) + 10;
   const BASE_CATEGORIAS = ["CONVENCIONAL", "SUPERIOR", "PCD", "INFO"];
   let categorias = [...BASE_CATEGORIAS];
 
@@ -488,6 +490,13 @@
   let inactivityRefreshTimer;
   const cacheDados = new Map();
   const requisicoesEmAndamento = new Map();
+  let sse = null;
+
+  function painelPodeConsultar(agora = new Date()) {
+      const dia = agora.getDay();
+      const minutos = (agora.getHours() * 60) + agora.getMinutes();
+      return dia >= 1 && dia <= 5 && minutos >= PAINEL_INICIO_MINUTOS && minutos < PAINEL_FIM_MINUTOS;
+  }
 
   function baseCategoria(categoria) {
       return categoria === "CONVENCIONAL_2" ? "CONVENCIONAL" : categoria;
@@ -620,6 +629,18 @@
               ajustarCategoriasConvencional(Array.isArray(cacheAtual.dados) ? cacheAtual.dados.length : 0);
           }
           return cacheAtual.dados;
+      }
+
+      if (!painelPodeConsultar()) {
+          if (cacheAtual && cacheAtual.dados) {
+              return cacheAtual.dados;
+          }
+          const persistente = lerCachePersistente(categoriaBase);
+          if (persistente && persistente.dados) {
+              cacheDados.set(categoriaBase, persistente);
+              return persistente.dados;
+          }
+          throw new Error("Painel fora do horario de consulta.");
       }
 
       if (requisicoesEmAndamento.has(categoriaBase)) {
@@ -918,6 +939,7 @@
   }
 
   async function atualizarQrRodape() {
+      if (!painelPodeConsultar()) return;
       try {
           const res = await fetch('/api/mural/token');
           const dados = await res.json();
@@ -928,6 +950,7 @@
   }
 
   async function pingHealth() {
+      if (!painelPodeConsultar()) return;
       try {
           await fetch('/api/health', { cache: 'no-store' });
       } catch (e) {
@@ -1012,14 +1035,28 @@
   }
 
   function forcarAtualizacao() {
+      if (!painelPodeConsultar()) {
+          renderizarCategoria();
+          return;
+      }
       limparTodosOsCaches();
       renderizarCategoria();
   }
 
-  const sse = new EventSource('/api/vagas/stream');
-  sse.addEventListener('vagas', () => forcarAtualizacao());
-  sse.onmessage = () => forcarAtualizacao();
-  sse.onerror = () => {};
+  function atualizarConexaoSse() {
+      if (!painelPodeConsultar()) {
+          if (sse) {
+              sse.close();
+              sse = null;
+          }
+          return;
+      }
+      if (sse) return;
+      sse = new EventSource('/api/vagas/stream');
+      sse.addEventListener('vagas', () => forcarAtualizacao());
+      sse.onmessage = () => forcarAtualizacao();
+      sse.onerror = () => {};
+  }
 
   hidratarCachePersistente();
   renderizarCategoria();
@@ -1087,6 +1124,8 @@
   setInterval(atualizarQrRodape, TEMPO_ATUALIZAR_QR);
   pingHealth();
   setInterval(pingHealth, KEEPALIVE_MS);
+  atualizarConexaoSse();
+  setInterval(atualizarConexaoSse, 60000);
 </script>
 <script>
   if ("serviceWorker" in navigator) {

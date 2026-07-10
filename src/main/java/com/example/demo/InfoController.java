@@ -20,14 +20,17 @@ public class InfoController {
 
     private final InfoConfigRepository repository;
     private final VagaSseService sseService;
+    private final PanelAccessWindow accessWindow;
 
-    public InfoController(InfoConfigRepository repository, VagaSseService sseService) {
+    public InfoController(InfoConfigRepository repository, VagaSseService sseService, PanelAccessWindow accessWindow) {
         this.repository = repository;
         this.sseService = sseService;
+        this.accessWindow = accessWindow;
     }
 
     @GetMapping
     public InfoDTO getInfos() {
+        accessWindow.requireOpen();
         return repository.findById(CONFIG_ID)
                 .map(this::toDto)
                 .orElseGet(InfoDTO::new);
