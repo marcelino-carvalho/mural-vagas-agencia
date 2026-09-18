@@ -231,9 +231,15 @@ public class VagaController {
     }
 
     private static String normalizarTela(String valor) {
-        return "2".equals(valor) ? "2" : "1";
+        if (valor == null) {
+            return "1";
+        }
+        String tela = valor.trim();
+        return switch (tela) {
+            case "1", "2", "3" -> tela;
+            default -> "1";
+        };
     }
 }
-
 
 

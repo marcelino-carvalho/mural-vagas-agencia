@@ -41,6 +41,9 @@ public class InfoConfig {
     @Column(name = "mutirao_titulo_tela2")
     private String mutiraoTituloTela2;
 
+    @Column(name = "mutirao_titulo_tela3")
+    private String mutiraoTituloTela3;
+
     @Column(name = "mutirao_tema_cor")
     private String mutiraoTemaCor;
 
@@ -117,6 +120,14 @@ public class InfoConfig {
 
     public void setMutiraoTituloTela2(String mutiraoTituloTela2) {
         this.mutiraoTituloTela2 = mutiraoTituloTela2;
+    }
+
+    public String getMutiraoTituloTela3() {
+        return mutiraoTituloTela3;
+    }
+
+    public void setMutiraoTituloTela3(String mutiraoTituloTela3) {
+        this.mutiraoTituloTela3 = mutiraoTituloTela3;
     }
 
     public String getMutiraoTemaCor() {

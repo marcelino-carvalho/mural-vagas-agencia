@@ -550,6 +550,7 @@
                         <select id="telaMutirao" class="form-control">
                             <option value="1">Tela 1</option>
                             <option value="2">Tela 2</option>
+                            <option value="3">Tela 3</option>
                         </select>
                     </div>
 
@@ -632,6 +633,10 @@
                     <div class="col-md-6">
                         <label class="campo-label" for="mutiraoTituloTela2">Título da Tela 2</label>
                         <input type="text" id="mutiraoTituloTela2" class="form-control" placeholder="Ex.: PAINEL DE MUTIRÕES - TELA 2">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="campo-label" for="mutiraoTituloTela3">Título da Tela 3</label>
+                        <input type="text" id="mutiraoTituloTela3" class="form-control" placeholder="Ex.: PAINEL DE MUTIRÕES - TELA 3">
                     </div>
                     <div class="col-md-6">
                         <label class="campo-label" for="mutiraoTemaCor">Cor do tema do mutirão</label>
@@ -1392,6 +1397,7 @@
                 try {
                     document.getElementById('mutiraoTituloTela1').value = dadosRecebidos.mutiraoTituloTela1 || '';
                     document.getElementById('mutiraoTituloTela2').value = dadosRecebidos.mutiraoTituloTela2 || '';
+                    document.getElementById('mutiraoTituloTela3').value = dadosRecebidos.mutiraoTituloTela3 || '';
                     document.getElementById('mutiraoTemaCor').value = dadosRecebidos.mutiraoTemaCor || '#1f4f8a';
                     document.getElementById('mutiraoRodapeCor').value = dadosRecebidos.mutiraoRodapeCor || '#6889ec';
 
@@ -1415,6 +1421,7 @@
             cronograma: [],
             mutiraoTituloTela1: document.getElementById('mutiraoTituloTela1').value.trim(),
             mutiraoTituloTela2: document.getElementById('mutiraoTituloTela2').value.trim(),
+            mutiraoTituloTela3: document.getElementById('mutiraoTituloTela3').value.trim(),
             mutiraoTemaCor: document.getElementById('mutiraoTemaCor').value || '#1f4f8a',
             mutiraoRodapeCor: document.getElementById('mutiraoRodapeCor').value || '#6889ec'
         };
@@ -1480,6 +1487,7 @@
             processoVagas: Array.isArray(base.processoVagas) ? base.processoVagas : [],
             mutiraoTituloTela1: document.getElementById('mutiraoTituloTela1').value.trim(),
             mutiraoTituloTela2: document.getElementById('mutiraoTituloTela2').value.trim(),
+            mutiraoTituloTela3: document.getElementById('mutiraoTituloTela3').value.trim(),
             mutiraoTemaCor: document.getElementById('mutiraoTemaCor').value || '#1f4f8a',
             mutiraoRodapeCor: document.getElementById('mutiraoRodapeCor').value || '#6889ec'
         };

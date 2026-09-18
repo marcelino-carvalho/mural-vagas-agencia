@@ -277,10 +277,11 @@
   const MODULO = "MUTIROES";
   let telaAtual = "1";
   let vagasCache = [];
-  let possuiTela2 = false;
+  let telasDisponiveis = ["1"];
   let titulosMutirao = {
     "1": "PAINEL DE MUTIRÕES - TELA 1",
-    "2": "PAINEL DE MUTIRÕES - TELA 2"
+    "2": "PAINEL DE MUTIRÕES - TELA 2",
+    "3": "PAINEL DE MUTIRÕES - TELA 3"
   };
 
   function hexToRgb(hex) {
@@ -330,7 +331,8 @@
       const infos = await res.json();
       titulosMutirao = {
         "1": infos.mutiraoTituloTela1 || "PAINEL DE MUTIRÕES - TELA 1",
-        "2": infos.mutiraoTituloTela2 || "PAINEL DE MUTIRÕES - TELA 2"
+        "2": infos.mutiraoTituloTela2 || "PAINEL DE MUTIRÕES - TELA 2",
+        "3": infos.mutiraoTituloTela3 || "PAINEL DE MUTIRÕES - TELA 3"
       };
       aplicarTemaMutirao(infos.mutiraoTemaCor);
       aplicarCorRodape(infos.mutiraoRodapeCor);
@@ -341,9 +343,15 @@
     if (!painelPodeConsultar()) return;
     const res = await fetch(`/api/vagas/modulo?tipo=${MODULO}`);
     vagasCache = await res.json();
-    possuiTela2 = Array.isArray(vagasCache) && vagasCache.some(vaga => (vaga.tela || '1') === '2');
-    if (!possuiTela2) {
-      telaAtual = "1";
+    const telasComVagas = Array.isArray(vagasCache)
+      ? vagasCache.map(vaga => String(vaga.tela || '1'))
+      : [];
+    telasDisponiveis = ["1", "2", "3"].filter(tela => telasComVagas.includes(tela));
+    if (!telasDisponiveis.length) {
+      telasDisponiveis = ["1"];
+    }
+    if (!telasDisponiveis.includes(telaAtual)) {
+      telaAtual = telasDisponiveis[0];
     }
     atualizarVisibilidadeNavegacao();
   }
@@ -387,25 +395,20 @@
   }
 
   function alternarTela() {
-    if (!possuiTela2) {
-      telaAtual = "1";
-      renderizarTela();
-      animarBarra();
-      return;
-    }
-    telaAtual = telaAtual === "1" ? "2" : "1";
+    const indiceAtual = telasDisponiveis.indexOf(telaAtual);
+    const proximoIndice = (indiceAtual + 1) % telasDisponiveis.length;
+    telaAtual = telasDisponiveis[proximoIndice];
     renderizarTela();
     animarBarra();
   }
 
   function irParaTela(delta) {
-    if (!possuiTela2) {
-      telaAtual = "1";
-      renderizarTela();
-      animarBarra();
+    if (telasDisponiveis.length <= 1) {
       return;
     }
-    telaAtual = delta < 0 ? "1" : "2";
+    const indiceAtual = telasDisponiveis.indexOf(telaAtual);
+    const novoIndice = (indiceAtual + delta + telasDisponiveis.length) % telasDisponiveis.length;
+    telaAtual = telasDisponiveis[novoIndice];
     renderizarTela();
     animarBarra();
   }
@@ -413,12 +416,12 @@
   function atualizarVisibilidadeNavegacao() {
     const nav = document.getElementById('nav-buttons');
     if (!nav) return;
-    nav.style.display = possuiTela2 ? 'flex' : 'none';
+    nav.style.display = telasDisponiveis.length > 1 ? 'flex' : 'none';
   }
 
   let hideButtonsTimer;
   function mostrarBotoesTemporario() {
-    if (!possuiTela2) return;
+    if (telasDisponiveis.length <= 1) return;
     const nav = document.getElementById('nav-buttons');
     nav.classList.add('show');
     clearTimeout(hideButtonsTimer);

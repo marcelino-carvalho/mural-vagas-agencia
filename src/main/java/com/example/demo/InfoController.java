@@ -52,6 +52,7 @@ public class InfoController {
         dto.processoVagas = safeList(dto.processoVagas);
         dto.mutiraoTituloTela1 = nvl(dto.mutiraoTituloTela1);
         dto.mutiraoTituloTela2 = nvl(dto.mutiraoTituloTela2);
+        dto.mutiraoTituloTela3 = nvl(dto.mutiraoTituloTela3);
         dto.mutiraoTemaCor = normalizarCor(dto.mutiraoTemaCor);
         dto.mutiraoRodapeCor = normalizarCor(dto.mutiraoRodapeCor);
 
@@ -83,6 +84,7 @@ public class InfoController {
         dto.empresaData = nvl(entity.getEmpresaData());
         dto.mutiraoTituloTela1 = nvl(entity.getMutiraoTituloTela1());
         dto.mutiraoTituloTela2 = nvl(entity.getMutiraoTituloTela2());
+        dto.mutiraoTituloTela3 = nvl(entity.getMutiraoTituloTela3());
         dto.mutiraoTemaCor = normalizarCor(entity.getMutiraoTemaCor());
         dto.mutiraoRodapeCor = normalizarCor(entity.getMutiraoRodapeCor());
 
@@ -94,7 +96,9 @@ public class InfoController {
         }
 
         if (dto.cursos.isEmpty() && dto.processos.isEmpty() && dto.cronograma.isEmpty()
-                && dto.empresaNome.isBlank() && dto.empresaData.isBlank() && dto.processoVagas.isEmpty()) {
+                && dto.empresaNome.isBlank() && dto.empresaData.isBlank() && dto.processoVagas.isEmpty()
+                && dto.mutiraoTituloTela1.isBlank() && dto.mutiraoTituloTela2.isBlank()
+                && dto.mutiraoTituloTela3.isBlank()) {
             return new InfoDTO();
         }
 
@@ -112,6 +116,7 @@ public class InfoController {
         entity.setProcessoVagasJson(serializeTextoLista(dto.processoVagas));
         entity.setMutiraoTituloTela1(dto.mutiraoTituloTela1);
         entity.setMutiraoTituloTela2(dto.mutiraoTituloTela2);
+        entity.setMutiraoTituloTela3(dto.mutiraoTituloTela3);
         entity.setMutiraoTemaCor(dto.mutiraoTemaCor);
         entity.setMutiraoRodapeCor(dto.mutiraoRodapeCor);
         return entity;
@@ -273,6 +278,7 @@ public class InfoController {
         public List<CronogramaItem> cronograma = new ArrayList<>();
         public String mutiraoTituloTela1 = "";
         public String mutiraoTituloTela2 = "";
+        public String mutiraoTituloTela3 = "";
         public String mutiraoTemaCor = "#1f4f8a";
         public String mutiraoRodapeCor = "#6889ec";
     }
