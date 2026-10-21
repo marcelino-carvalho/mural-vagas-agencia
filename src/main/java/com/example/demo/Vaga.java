@@ -2,14 +2,20 @@ package com.example.demo;
 
 import jakarta.persistence.*;
 
+//Essa classe é usada sempre que o sistema precisa trabalhar com uma vaga de emprego, seja para salvar no banco, ler do banco ou enviar para a tela da tv em formato JSON, ele usa um objeto criado a partir do molde da classe Vaga
+
+//Esta anotação diz ao Spring/HIbernate que esta classe representa uma tabela no PostgreSQL. Como o nome da classe é Vaga, ele cria/atualiza automaticamente uma tabela chamada vaga lá no PostgreSQL
 @Entity
 public class Vaga {
-
+    //static significa que pertence a classe e nao virara uma coluna
+    //static serve para o resto do sistema usar Vaga.MODULO_VAGAS em vez de correr o risco de digitar "VAGAS" errado em vários arquivos.
     public static final String MODULO_VAGAS = "VAGAS";
     public static final String MODULO_MUTIROES = "MUTIROES";
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //Cada variável criada virará uma coluna automaticamente
+
+    @Id //Marca o campo private Long id, é o número que identifica cada vaga
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //Diz ao PostreSQL para gerar os números sozinho em sequência sempre que uma vaga for salva
     private Long id;
 
     private String titulo;
@@ -23,14 +29,13 @@ public class Vaga {
     private String tela;
     private String local;
     private String beneficios;
-    @Column(length = 4000)
+    @Column(length = 4000) //faz o campo atribuições aceitar no maximo 4000 caracteres na coluna do PostgreSQL
     private String atribuicoes;
     private String validade;
 
-    // --- NOVO CAMPO ---
     private String experiencia; // Vai guardar "Sim" ou "Não"
 
-    // --- Getters e Setters do Novo Campo ---
+    // --- Getters e Setters ---
     public String getExperiencia() { return experiencia; }
     public void setExperiencia(String experiencia) { this.experiencia = experiencia; }
 
