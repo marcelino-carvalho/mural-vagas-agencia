@@ -1,17 +1,37 @@
-const CACHE_VERSION = "mural-v6";
+/**
+ * Service Worker para funcionamento offline e cache inteligente dos assets
+ * do Mural de Vagas da Agência do Trabalhador de Curitiba.
+ */
+const CACHE_VERSION = "mural-v7";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
 
+/**
+ * Lista de recursos estáticos pré-cacheados na instalação
+ */
 const STATIC_ASSETS = [
   "/",
   "/mural.html",
+  "/mural-mutiroes.html",
   "/tv.html",
+  "/tv-mutiroes.html",
   "/admin.html",
+  "/css/admin.css",
+  "/css/tv.css",
+  "/css/tv-mutiroes.css",
+  "/css/mural.css",
+  "/css/mural-mutiroes.css",
+  "/js/admin.js",
+  "/js/tv.js",
+  "/js/tv-mutiroes.js",
+  "/js/mural.js",
+  "/js/mural-mutiroes.js",
   "/logo-agencia-2026.png",
   "/manifest.json",
   "/sw.js"
 ];
 
+// Instalação: baixa e armazena os assets estáticos no cache
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS))
@@ -19,6 +39,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
+// Ativação: remove caches de versões antigas e assume controle dos clientes
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -32,6 +53,7 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Interceptação de requisições de rede
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
@@ -41,14 +63,20 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Requisições para a API REST seguem estratégia Network-First (com fallback de cache)
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(networkFirst(request));
     return;
   }
 
+  // Recursos estáticos (HTML, CSS, JS, Imagens) seguem estratégia Cache-First
   event.respondWith(cacheFirst(request));
 });
 
+/**
+ * Estratégia Cache-First: devolve do cache local se disponível;
+ * caso contrário, busca na rede e salva no cache.
+ */
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
@@ -58,6 +86,10 @@ async function cacheFirst(request) {
   return response;
 }
 
+/**
+ * Estratégia Network-First: tenta obter a versão mais recente na rede;
+ * se offline ou houver falha, entrega a última resposta em cache.
+ */
 async function networkFirst(request) {
   const cache = await caches.open(API_CACHE);
   try {

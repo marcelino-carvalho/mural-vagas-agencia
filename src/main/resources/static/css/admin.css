@@ -1,0 +1,429 @@
+/**
+ * Estilos do Painel Administrativo do Mural de Vagas
+ * Agência do Trabalhador de Curitiba
+ */
+        :root {
+            --brand: #0a66d1;
+            --brand-soft: #dcecff;
+            --ink: #243547;
+            --line: #d7dee6;
+            --mutirao: #0f7a5f;
+            --mutirao-soft: #dcf4ec;
+        }
+
+        body {
+            background: linear-gradient(180deg, #f4f7fb 0%, #eef2f7 100%);
+            color: var(--ink);
+        }
+
+        .shell-card,
+        .module-card,
+        .print-card,
+        .picker-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(17, 37, 63, 0.07);
+        }
+
+        .shell-card {
+            padding: 22px;
+        }
+
+        .toolbar-chip {
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: #fff;
+            padding: 10px 14px;
+            font-weight: 700;
+        }
+
+        .view-switch {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .view-chip {
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: #fff;
+            padding: 10px 16px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .view-chip.active {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: #fff;
+        }
+
+        .module-card {
+            padding: 22px;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            height: 100%;
+        }
+
+        .module-card:hover,
+        .module-card.active {
+            transform: translateY(-3px);
+            box-shadow: 0 24px 48px rgba(17, 37, 63, 0.12);
+        }
+
+        .module-card.vagas.active,
+        .module-card.vagas:hover {
+            border-color: var(--brand);
+        }
+
+        .module-card.mutiroes.active,
+        .module-card.mutiroes:hover {
+            border-color: var(--mutirao);
+        }
+
+        .module-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .module-badge.vagas {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .module-badge.mutiroes {
+            background: var(--mutirao-soft);
+            color: var(--mutirao);
+        }
+
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .campo-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: #445567;
+        }
+
+        .picker-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(13, 23, 36, 0.6);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 2000;
+        }
+
+        .picker-card {
+            max-width: 980px;
+            width: 100%;
+            padding: 28px;
+        }
+
+        .picker-option {
+            text-align: left;
+            padding: 22px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: #fff;
+            width: 100%;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .picker-option:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 22px 42px rgba(17, 37, 63, 0.12);
+        }
+
+        .picker-option.vagas:hover {
+            border-color: var(--brand);
+        }
+
+        .picker-option.mutiroes:hover {
+            border-color: var(--mutirao);
+        }
+
+        .print-card {
+            padding: 18px;
+            min-height: 100%;
+        }
+
+        .info-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .info-actions .btn {
+            flex: 1 1 220px;
+        }
+
+        .print-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .print-vaga-card {
+            background: #fff;
+            border: 1px solid #d9e2ec;
+            border-left: 8px solid var(--brand);
+            border-radius: 16px;
+            padding: 18px;
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            break-inside: avoid;
+        }
+
+        .print-vaga-card.mutiroes {
+            border-left-color: var(--mutirao);
+        }
+
+        .print-card-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .print-code {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 5px 10px;
+            background: var(--brand-soft);
+            color: var(--brand);
+            font-weight: 800;
+            font-size: 0.78rem;
+        }
+
+        .print-vaga-card.mutiroes .print-code {
+            background: var(--mutirao-soft);
+            color: var(--mutirao);
+        }
+
+        .print-title {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .print-salary {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #0e8f56;
+        }
+
+        .print-meta,
+        .print-detail {
+            font-size: 0.92rem;
+            line-height: 1.4;
+            color: #405164;
+        }
+
+        .curso-item,
+        .processo-item {
+            border: 1px solid #e6edf5;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .curso-item textarea.form-control {
+            min-height: 104px;
+            resize: vertical;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .info-row .form-control {
+            flex: 1;
+        }
+
+        .info-row textarea.form-control {
+            min-height: 76px;
+            resize: vertical;
+        }
+
+        .mutirao-only {
+            display: none;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .editor-surface {
+            min-height: 160px;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            padding: 12px;
+            background: #fff;
+            font-family: Arial, sans-serif;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+
+        .editor-surface,
+        .editor-surface * {
+            font-family: Arial, sans-serif !important;
+        }
+
+        .editor-surface:focus {
+            outline: none;
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+        }
+
+        .search-toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .search-toolbar .input-group {
+            flex: 1 1 320px;
+        }
+
+        .search-status {
+            font-size: 0.9rem;
+            color: #5a6c7d;
+            font-weight: 600;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            #print-area {
+                display: block !important;
+            }
+
+            body.print-mutirao-single #print-area {
+                max-width: none !important;
+                width: 100% !important;
+                height: 198mm !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: hidden !important;
+            }
+
+            body.print-mutirao-single #print-area,
+            body.print-mutirao-single #print-area * {
+                font-family: Arial, sans-serif !important;
+                font-size: 25pt !important;
+            }
+
+            body.print-mutirao-single #print-kicker,
+            body.print-mutirao-single #print-heading,
+            body.print-mutirao-single #print-description {
+                display: none !important;
+            }
+
+            .print-preview-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12mm;
+            }
+
+            body.print-mutirao-single .print-preview-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            body.print-mutirao-single .print-vaga-card {
+                width: 100%;
+                height: 198mm;
+                min-height: 198mm;
+                padding: 10mm 10mm 10mm 12mm;
+                border-radius: 0 !important;
+                border-width: 2mm;
+                box-sizing: border-box;
+                display: grid;
+                grid-template-rows: auto 1fr;
+                overflow: hidden;
+                page-break-after: avoid;
+                break-after: avoid-page;
+            }
+
+            body.print-mutirao-single .print-card-top {
+                margin-bottom: 8mm;
+                align-items: flex-start;
+            }
+
+            body.print-mutirao-single #print-area .print-code {
+                font-size: 40pt !important;
+                font-weight: 900 !important;
+                padding: 0;
+                background: transparent;
+                color: #000 !important;
+            }
+
+            body.print-mutirao-single .print-location {
+                font-size: 24pt;
+                font-weight: 900;
+                color: #000 !important;
+                letter-spacing: 0.03em;
+            }
+
+            body.print-mutirao-single .print-detail-wrap {
+                height: 100%;
+                display: flex;
+                align-items: flex-start;
+            }
+
+            body.print-mutirao-single #print-area .print-detail,
+            body.print-mutirao-single #print-area .print-detail * {
+                font-size: var(--mutirao-print-detail-size, 28pt) !important;
+                line-height: 1.32;
+                color: #1f2d3a;
+                white-space: pre-wrap;
+                margin: 0;
+            }
+
+            .print-vaga-card {
+                min-height: 0;
+                box-shadow: none;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
+
+            body.print-mutirao-single {
+                --print-orientation: landscape;
+            }
+        }

@@ -1,0 +1,285 @@
+/**
+ * Estilos do Mural Digital de Mutirões
+ * Agência do Trabalhador de Curitiba
+ */
+    :root {
+      --bg: #eef3f9;
+      --panel: #f7faff;
+      --card: #ffffff;
+      --line: #d8e1ee;
+      --ink: #16263a;
+      --muted: #617186;
+      --brand: #1f4f8a;
+      --brand-deep: #163a67;
+      --brand-soft: #dce8f6;
+      --shadow: 0 14px 34px rgba(14, 34, 66, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(31,79,138,0.10), transparent 28%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 48%, #e7eef7 100%);
+    }
+
+    .app {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 18px 14px 30px;
+    }
+
+    .hero {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: -18px -14px 16px;
+      padding: 18px 14px 14px;
+      background: rgba(247, 251, 249, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, rgba(15,122,95,0.08), rgba(255,255,255,0.95));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--brand);
+      background: var(--brand-soft);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+
+    .title {
+      margin: 12px 0 8px;
+      font-size: 1.7rem;
+      line-height: 1.05;
+      font-weight: 900;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.35;
+    }
+
+    .hero-meta {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .meta-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 10px 12px;
+    }
+
+    .meta-label {
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    .status {
+      text-align: right;
+      color: var(--brand-deep);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-left: 7px solid var(--brand);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .card:active {
+      transform: scale(0.992);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .empresa {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.1;
+      font-weight: 900;
+      color: #101616;
+    }
+
+    .local {
+      flex: 0 0 auto;
+      max-width: 42%;
+      text-align: right;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--brand-deep);
+    }
+
+    .preview {
+      font-family: Arial, sans-serif;
+      font-size: 0.96rem;
+      line-height: 1.4;
+      color: #203429;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      white-space: normal;
+    }
+
+    .card-bottom {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .cta {
+      color: var(--brand);
+      font-size: 0.86rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .empty,
+    .error {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 26px 20px;
+      text-align: center;
+      color: var(--muted);
+      box-shadow: var(--shadow);
+    }
+
+    .sheet {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 16, 28, 0.46);
+      display: none;
+      z-index: 60;
+      align-items: end;
+    }
+
+    .sheet.show { display: flex; }
+
+    .sheet-card {
+      width: 100%;
+      max-height: 88vh;
+      overflow: auto;
+      background: linear-gradient(180deg, #ffffff 0%, #f5faf7 100%);
+      border-radius: 24px 24px 0 0;
+      padding: 18px 16px 24px;
+      box-shadow: 0 -10px 36px rgba(0,0,0,0.18);
+    }
+
+    .sheet-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .sheet-head h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    .close {
+      border: none;
+      border-radius: 12px;
+      background: #e6f1ec;
+      color: #23473a;
+      font-weight: 800;
+      min-width: 82px;
+      min-height: 38px;
+    }
+
+    .detail-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .detail-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .value {
+      font-family: Arial, sans-serif;
+      font-size: 1rem;
+      line-height: 1.45;
+      color: #182a21;
+      white-space: pre-wrap;
+    }
+
+    .preview *,
+    .value * {
+      font-family: Arial, sans-serif !important;
+    }
