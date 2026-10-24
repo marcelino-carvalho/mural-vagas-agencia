@@ -34,7 +34,8 @@
   function painelPodeConsultar(agora = new Date()) {
     const dia = agora.getDay();
     const minutos = (agora.getHours() * 60) + agora.getMinutes();
-    return dia >= 1 && dia <= 5 && minutos >= PAINEL_INICIO_MINUTOS && minutos < PAINEL_FIM_MINUTOS;
+    return dia >= 1 && dia <= 6 && minutos >= PAINEL_INICIO_MINUTOS && minutos < PAINEL_FIM_MINUTOS;
+  //return dia >= 1 && dia <= 5 && minutos >= PAINEL_INICIO_MINUTOS && minutos < PAINEL_FIM_MINUTOS;
   }
 
   function atualizarAlturaApp() {
