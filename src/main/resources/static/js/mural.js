@@ -350,4 +350,3 @@
       renderErro(e.message || "Nao foi possivel carregar o mural.");
     }
   })();
-</script>

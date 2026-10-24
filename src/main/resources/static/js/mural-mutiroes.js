@@ -241,4 +241,3 @@
       renderErro(e.message || "Não foi possível carregar o mural.");
     }
   })();
-</script>
