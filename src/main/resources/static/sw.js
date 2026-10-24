@@ -2,7 +2,7 @@
  * Service Worker para funcionamento offline e cache inteligente dos assets
  * do Mural de Vagas da Agência do Trabalhador de Curitiba.
  */
-const CACHE_VERSION = "mural-v9";
+const CACHE_VERSION = "mural-v10";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
 
@@ -69,26 +69,31 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Recursos estáticos (HTML, CSS, JS, Imagens) seguem estratégia Cache-First
-  event.respondWith(cacheFirst(request));
+  // Recursos estáticos (HTML, CSS, JS, Imagens) seguem estratégia Network-First para sempre pegar atualizações se online
+  event.respondWith(networkFirstStatic(request));
 });
 
 /**
- * Estratégia Cache-First: devolve do cache local se disponível;
- * caso contrário, busca na rede e salva no cache.
+ * Estratégia Network-First para arquivos estáticos:
+ * Se houver internet, baixa a versão mais nova e atualiza o cache;
+ * se estiver sem internet, usa o cache salvo.
  */
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  const response = await fetch(request);
+async function networkFirstStatic(request) {
   const cache = await caches.open(STATIC_CACHE);
-  cache.put(request, response.clone());
-  return response;
+  try {
+    const response = await fetch(request);
+    cache.put(request, response.clone());
+    return response;
+  } catch (_) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    throw _;
+  }
 }
 
 /**
- * Estratégia Network-First: tenta obter a versão mais recente na rede;
- * se offline ou houver falha, entrega a última resposta em cache.
+ * Estratégia Network-First para API REST:
+ * Tenta obter a versão mais recente na rede; se offline, entrega a última resposta em cache.
  */
 async function networkFirst(request) {
   const cache = await caches.open(API_CACHE);
@@ -102,4 +107,3 @@ async function networkFirst(request) {
     throw _;
   }
 }
-
