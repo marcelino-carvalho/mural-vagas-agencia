@@ -149,13 +149,14 @@
     }
     .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .codigo-badge { background-color: #e9ecef; padding: 1px 4px; border-radius: 3px; font-weight: 900; font-size: 0.7em; }
-    .local-texto { font-size: 0.5em; font-weight: bold; text-transform: uppercase; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+    .local-texto { font-size: 0.5em; font-weight: bold; text-transform: uppercase; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; margin-left: auto; }
+    .card-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; width: 100%; }
     .card-exp-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 6px;
+        width: 100%;
     }
     .tag-exp { font-size: 0.56em; font-weight: 800; display: inline-block; white-space: nowrap; }
     .expediente-badge {
@@ -164,9 +165,11 @@
         color: #2c3e50;
         display: inline-flex;
         align-items: center;
+        justify-content: flex-end;
         gap: 4px;
         margin-left: auto;
         line-height: 1.15;
+        text-align: right;
     }
     .expediente-badge i {
         font-size: 1.15em;
@@ -178,7 +181,7 @@
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        text-align: left;
+        text-align: right;
     }
     .com-exp { color: #6bbcff; }
     .sem-exp { color: #198754; }
