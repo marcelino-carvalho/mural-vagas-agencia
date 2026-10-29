@@ -427,7 +427,21 @@
               tagExp = `<span class="tag-exp com-exp">${expRaw}</span>`;
           }
 
-
+          let expedienteHtml = "";
+          if (vaga.expediente) {
+              const linhasExp = vaga.expediente
+                  .toString()
+                  .trim()
+                  .slice(0, 50)
+                  .split(/\r?\n/)
+                  .slice(0, 2); // garante no máximo 2 linhas (1 quebra)
+              expedienteHtml = `
+                  <span class="expediente-badge">
+                      <i class="bi bi-clock"></i>
+                      <span class="expediente-texto">${linhasExp.join("<br>")}</span>
+                  </span>
+              `;
+          }
 
           card.innerHTML = `
               <div class="card-top">
@@ -435,7 +449,10 @@
                   <span class="local-texto">${local}</span>
               </div>
               <div class="card-content">
-                  ${tagExp}
+                  <div class="card-exp-row">
+                      ${tagExp}
+                      ${expedienteHtml}
+                  </div>
                   <h2>${vaga.titulo}</h2>
                   ${vaga.escolaridade ? `<div class="escolaridade">${vaga.escolaridade}</div>` : ""}
                   <div class="salario">R$ ${vaga.salario}</div>

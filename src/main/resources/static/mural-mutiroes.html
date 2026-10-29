@@ -17,14 +17,7 @@
       <div class="eyebrow">QR exclusivo do painel de mutirões</div>
       <h1 class="title">Mural de Mutirões</h1>
       <p class="subtitle">Consulte os processos do painel de mutirões. Toque em um card para abrir a leitura completa com empresa, local e informações.</p>
-      <div class="hero-meta">
-        <div class="meta-chip">
-          <div>
-            <div class="meta-label">Acesso</div>
-            <div class="status" id="status">Validando acesso...</div>
-          </div>
-        </div>
-      </div>
+      <div class="status" id="status">Validando acesso...</div>
     </div>
   </div>
 
@@ -42,7 +35,13 @@
 </div>
 
   <script src="/js/mural-mutiroes.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
 </body>
 </html>
-
 

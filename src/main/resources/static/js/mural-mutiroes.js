@@ -11,6 +11,52 @@
   let dataAtual = null;
   let expiraEm = 0;
   let sessionToken = null;
+  const CACHE_TTL_MS = 60000;
+  const CACHE_KEY_PREFIX = "mural_mutiroes_cache_v1:";
+
+  function atualizarAlturaApp() {
+    const altura = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty("--app-height", `${Math.round(altura)}px`);
+  }
+
+  function chaveCacheMural(token) {
+    return `${CACHE_KEY_PREFIX}${token || "anon"}`;
+  }
+
+  function salvarCacheMural(token, payload) {
+    if (!token || !payload) return;
+    try {
+      localStorage.setItem(chaveCacheMural(token), JSON.stringify({
+        savedAt: Date.now(),
+        payload
+      }));
+    } catch (_) {}
+  }
+
+  function lerCacheMural(token, ttlMs = CACHE_TTL_MS) {
+    if (!token) return null;
+    try {
+      const raw = localStorage.getItem(chaveCacheMural(token));
+      if (!raw) return null;
+      const cache = JSON.parse(raw);
+      const savedAt = Number(cache && cache.savedAt);
+      if (!savedAt || !cache.payload) return null;
+      if (Date.now() - savedAt > ttlMs) return null;
+      return cache.payload;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function aplicarDadosMural(payload) {
+    dataAtual = payload;
+    if (dataAtual && dataAtual.infos) {
+      aplicarTemaMutirao(dataAtual.infos.mutiraoTemaCor);
+    }
+    expiraEm = dataAtual.expiresAtEpochSeconds || 0;
+    renderConteudo();
+    statusSessao();
+  }
 
   function hexToRgb(hex) {
     const value = (hex || "").replace("#", "");
@@ -174,8 +220,9 @@
 
   async function carregarDados() {
     if (!painelPodeConsultar()) {
-      if (dataAtual) {
-        renderConteudo();
+      const cache = dataAtual || lerCacheMural(sessionToken, Number.MAX_SAFE_INTEGER);
+      if (cache) {
+        aplicarDadosMural(cache);
         statusEl.textContent = "Fora do horario de consulta. Exibindo dados em cache.";
         return;
       }
@@ -183,13 +230,9 @@
     }
     const res = await apiFetch(`/api/mural/data?t=${encodeURIComponent(sessionToken)}&m=${MODULO}`);
     if (!res.ok) throw new Error("Acesso negado");
-    dataAtual = await res.json();
-    if (dataAtual && dataAtual.infos) {
-      aplicarTemaMutirao(dataAtual.infos.mutiraoTemaCor);
-    }
-    expiraEm = dataAtual.expiresAtEpochSeconds || 0;
-    renderConteudo();
-    statusSessao();
+    const payload = await res.json();
+    aplicarDadosMural(payload);
+    salvarCacheMural(sessionToken, payload);
   }
 
   async function iniciarSessaoComQr(token) {
@@ -207,10 +250,13 @@
     const res = await apiFetch(`/api/mural/validate?t=${encodeURIComponent(token)}`);
     if (!res.ok) return false;
     const v = await res.json();
-    if (!v.valid) return false;
-    sessionToken = token;
-    expiraEm = v.expiresAtEpochSeconds || 0;
-    return true;
+    if (v.valid) {
+      sessionToken = token;
+      expiraEm = v.expiresAtEpochSeconds || 0;
+      return true;
+    }
+    if (v.wrongNetwork) throw new Error("Este acesso só funciona dentro da agência.");
+    return false;
   }
 
   function renderErro(msg) {
@@ -223,17 +269,48 @@
     if (e.target === sheetEl) sheetEl.classList.remove("show");
   });
 
+  window.addEventListener("resize", atualizarAlturaApp);
+  window.addEventListener("orientationchange", atualizarAlturaApp);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", atualizarAlturaApp);
+  }
+  window.addEventListener("pageshow", (event) => {
+    if (!event.persisted) return;
+    atualizarAlturaApp();
+    const cache = lerCacheMural(sessionToken);
+    if (cache) aplicarDadosMural(cache);
+    carregarDados().catch(() => {});
+  });
+  atualizarAlturaApp();
+
   (async () => {
     try {
       const tokenAtual = new URLSearchParams(window.location.search).get("t");
       const sessaoValida = await tentarUsarSessaoAtual(tokenAtual);
       if (!sessaoValida) await iniciarSessaoComQr(tokenAtual);
-      await carregarDados();
+      const cache = lerCacheMural(sessionToken);
+      if (cache) {
+        aplicarDadosMural(cache);
+        statusEl.textContent = "Exibindo dados em cache. Atualizando...";
+      }
+      await carregarDados().catch((e) => {
+        if (cache) {
+          statusEl.textContent = "Sem conexão no momento. Exibindo dados recentes em cache.";
+          return;
+        }
+        throw e;
+      });
       setInterval(statusSessao, 1000);
       setInterval(async () => {
         try {
           await carregarDados();
         } catch (_) {
+          const cacheAtual = lerCacheMural(sessionToken);
+          if (cacheAtual) {
+            aplicarDadosMural(cacheAtual);
+            statusEl.textContent = "Falha temporária de rede. Exibindo dados recentes em cache.";
+            return;
+          }
           renderErro("Sessão expirada ou indisponível. Escaneie novamente o QR do painel de mutirões.");
         }
       }, 60000);

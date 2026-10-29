@@ -150,17 +150,35 @@
     });
   }
 
+  function escaparHtml(valor) {
+    return (valor || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function abrirDetalhes(vaga) {
     sheetTitleEl.textContent = vaga.titulo || "Vaga";
     sheetBodyEl.innerHTML = `
-      <div class="row"><div class="label">Codigo</div><div class="value">${vaga.codigo || "-"}</div></div>
-      <div class="row"><div class="label">Categoria</div><div class="value">${vaga.categoria || "-"}</div></div>
-      <div class="row"><div class="label">Salario</div><div class="value">R$ ${vaga.salario || "-"}</div></div>
-      <div class="row"><div class="label">Local</div><div class="value">${vaga.local || "-"}</div></div>
-      <div class="row"><div class="label">Experiencia</div><div class="value">${vaga.experiencia || "-"}</div></div>
-      <div class="row"><div class="label">Beneficios</div><div class="value">${vaga.beneficios || "-"}</div></div>
-      <div class="row"><div class="label">Atribuicoes</div><div class="value">${vaga.atribuicoes || "-"}</div></div>
-      <div class="row"><div class="label">Validade da vaga</div><div class="value">${formatarDataBR(vaga.validade)}</div></div>
+      <div class="detail-grid">
+        <div class="detail-row">
+          <div class="detail-card"><div class="label">Código</div><div class="value">${escaparHtml(vaga.codigo || "-")}</div></div>
+          <div class="detail-card"><div class="label">Categoria</div><div class="value">${escaparHtml(vaga.categoria || "-")}</div></div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-card"><div class="label">Salário</div><div class="value value-highlight">R$ ${escaparHtml(vaga.salario || "-")}</div></div>
+          <div class="detail-card"><div class="label">Experiência</div><div class="value">${escaparHtml(vaga.experiencia || "-")}</div></div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-card"><div class="label">Escolaridade</div><div class="value">${escaparHtml(vaga.escolaridade || "-")}</div></div>
+          <div class="detail-card"><div class="label">Expediente</div><div class="value">${escaparHtml(vaga.expediente || "-")}</div></div>
+        </div>
+        <div class="detail-card"><div class="label">Local</div><div class="value">${escaparHtml(vaga.local || "-")}</div></div>
+        <div class="detail-card"><div class="label">Benefícios</div><div class="value">${escaparHtml(vaga.beneficios || "-")}</div></div>
+        <div class="detail-card"><div class="label">Atribuições</div><div class="value">${escaparHtml(vaga.atribuicoes || "-")}</div></div>
+        <div class="detail-card"><div class="label">Validade da vaga</div><div class="value">${escaparHtml(formatarDataBR(vaga.validade))}</div></div>
+      </div>
     `;
     sheetEl.classList.add("show");
   }
@@ -210,19 +228,23 @@
       return;
     }
 
-    const html = vagas.map(v => `
-      <article class="vaga-card" data-id="${v.id}" style="border-left-color:${corCategoria}">
-        <div class="vaga-head">
-          <span class="badge" style="background:${badgeBg};color:${badgeInk}">${v.codigo || "-"}</span>
-          <span class="vaga-local">${v.local || ""}</span>
-        </div>
-        <h3 class="vaga-title">${v.titulo || "-"}</h3>
-        <div class="vaga-meta">
-          <span class="vaga-salario">R$ ${v.salario || "-"}</span>
-          <span class="vaga-open" style="color:${corCategoria}">Abrir detalhes</span>
-        </div>
-      </article>
-    `).join("");
+    const html = vagas.map(v => {
+      const expSub = [v.experiencia, v.expediente ? `🕒 ${v.expediente.replace(/\r?\n/g, " ")}` : ""].filter(Boolean).join(" • ");
+      return `
+        <article class="vaga-card" data-id="${v.id}" style="border-left-color:${corCategoria}">
+          <div class="vaga-head">
+            <span class="badge" style="background:${badgeBg};color:${badgeInk}">${escaparHtml(v.codigo || "-")}</span>
+            <span class="vaga-local">${v.local ? `📍 ${escaparHtml(v.local)}` : ""}</span>
+          </div>
+          <h3 class="vaga-title">${escaparHtml(v.titulo || "-")}</h3>
+          ${expSub ? `<div class="vaga-sub">${escaparHtml(expSub)}</div>` : ""}
+          <div class="vaga-meta">
+            <span class="vaga-salario">R$ ${escaparHtml(v.salario || "-")}</span>
+            <span class="vaga-open" style="color:${corCategoria}">Abrir detalhes</span>
+          </div>
+        </article>
+      `;
+    }).join("");
 
     contentEl.innerHTML = `<section class="vagas-grid">${html}</section>`;
     contentEl.querySelectorAll(".vaga-card").forEach(el => {

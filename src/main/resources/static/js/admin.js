@@ -56,6 +56,7 @@
         document.getElementById('group-validade').style.display = isMutirao ? 'none' : 'block';
         document.getElementById('group-tipo').style.display = isMutirao ? 'none' : 'block';
         document.getElementById('group-experiencia').style.display = isMutirao ? 'none' : 'block';
+        document.getElementById('group-expediente').style.display = isMutirao ? 'none' : 'block';
         document.getElementById('mutirao-titulos-shell').style.display = isMutirao ? 'block' : 'none';
         document.getElementById('form-title').textContent = isMutirao ? 'Novo Mutirão' : 'Nova Vaga';
         document.getElementById('form-subtitle').textContent = isMutirao
@@ -285,7 +286,8 @@
             atribuicoes: document.getElementById('atribuicoes').value,
             validade: document.getElementById('validade').value,
             categoria: document.getElementById('tipo').value,
-            experiencia: document.getElementById('experiencia').value
+            experiencia: document.getElementById('experiencia').value,
+            expediente: document.getElementById('expediente').value,
         };
 
         if (moduloAtual === 'MUTIROES' && !dados.empresa.trim()) {
@@ -304,6 +306,7 @@
             dados.validade = '';
             dados.categoria = '';
             dados.experiencia = '';
+            dados.expediente = '';
         }
 
         const url = editId ? `${API_VAGAS}/${editId}` : API_VAGAS;
@@ -334,6 +337,7 @@
         document.getElementById('local').value = v.local || '';
         document.getElementById('beneficios').value = v.beneficios || '';
         document.getElementById('atribuicoes').value = v.atribuicoes || '';
+        document.getElementById('expediente').value = v.expediente || '';
         document.getElementById('validade').value = normalizarDataInput(v.validade);
         document.getElementById('tipo').value = v.categoria || 'CONVENCIONAL';
         document.getElementById('experiencia').value = v.experiencia || 'COM EXPERIÊNCIA';
@@ -366,6 +370,32 @@
         document.getElementById('busca-vagas').value = '';
         renderizarTabelaVagas();
     });
+
+    const campoExpediente = document.getElementById('expediente');
+
+    campoExpediente.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            // Se já existe 1 quebra de linha (\n), bloqueia um novo Enter
+            if (this.value.includes('\n')) {
+                event.preventDefault();
+            }
+        }
+    });
+
+    campoExpediente.addEventListener('input', function() {
+        // Garante no máximo 1 quebra de linha (2 linhas) e 50 caracteres (mesmo ao colar texto)
+        const partes = this.value.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+        let texto = partes.length > 2
+            ? partes[0] + '\n' + partes.slice(1).join(' ')
+            : partes.join('\n');
+        if (texto.length > 50) {
+            texto = texto.slice(0, 50);
+        }
+        if (this.value !== texto) {
+            this.value = texto;
+        }
+    });
+
 
     document.getElementById('infoMutirao').addEventListener('paste', function(event) {
         event.preventDefault();

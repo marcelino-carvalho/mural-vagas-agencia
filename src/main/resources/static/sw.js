@@ -2,7 +2,7 @@
  * Service Worker para funcionamento offline e cache inteligente dos assets
  * do Mural de Vagas da Agência do Trabalhador de Curitiba.
  */
-const CACHE_VERSION = "mural-v10";
+const CACHE_VERSION = "mural-v11";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
 

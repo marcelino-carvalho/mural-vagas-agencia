@@ -71,4 +71,8 @@ public class Vaga {
 
     /** Indica se requer experiência prévia ("Sim" ou "Não") */
     private String experiencia;
+
+    /** Horário ou jornada de expediente da vaga (ex: "Seg a Sex, das 08h00 às 18h00") */
+    @Column (length = 50)
+    private String expediente;
 }

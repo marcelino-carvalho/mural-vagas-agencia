@@ -32,6 +32,7 @@ public class VagaService {
      */
     @Transactional
     public Vaga cadastrar(Vaga vaga) {
+        vaga.setExpediente(normalizarExpediente(vaga.getExpediente()));
         normalizarVaga(vaga);
         Vaga salva = repository.save(vaga);
         sseService.notifyChange();
@@ -96,6 +97,7 @@ public class VagaService {
         vaga.setCategoria(payload.getCategoria() == null ? null : payload.getCategoria().toUpperCase());
         vaga.setModulo(normalizarModulo(payload.getModulo()));
         vaga.setExperiencia(payload.getExperiencia());
+        vaga.setExpediente(normalizarExpediente(payload.getExpediente()));
         vaga.setDescricao(payload.getDescricao());
 
         Vaga salva = repository.save(vaga);
@@ -168,5 +170,15 @@ public class VagaService {
             case "1", "2", "3" -> tela;
             default -> "1";
         };
+    }
+    private static String normalizarExpediente(String valor) {
+        if (valor == null) return null;
+        // Padroniza quebras de linha e mantém apenas a primeira quebra (máximo de 2 linhas)
+        String[] linhas = valor.replace("\r\n", "\n").replace("\r", "\n").split("\n");
+        String normalizado = linhas.length > 1
+                ? linhas[0] + "\n" + String.join(" ", java.util.Arrays.copyOfRange(linhas, 1, linhas.length))
+                : linhas[0];
+        normalizado = normalizado.trim();
+        return normalizado.length() > 50 ? normalizado.substring(0, 50) : normalizado;
     }
 }
