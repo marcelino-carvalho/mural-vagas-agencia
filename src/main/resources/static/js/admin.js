@@ -21,6 +21,7 @@
 
     let moduloAtual = null;
     let editId = null;
+    let deleteTargetId = null;
     let vagasCache = [];
     let infosCache = null;
     let infosDirty = false;
@@ -243,7 +244,7 @@
             const categoria = moduloAtual === 'MUTIROES' ? `Tela ${v.tela || '1'}` : (v.categoria || '-');
             const validade = moduloAtual === 'MUTIROES' ? '-' : formatarDataBR(v.validade);
             const imprimirCell = moduloAtual === 'MUTIROES'
-                ? `<td><button onclick="imprimirCardMutirao(${v.id})" class="btn btn-outline-dark btn-sm"><i class="bi bi-printer"></i></button></td>`
+                ? `<td class="text-center"><button type="button" onclick="imprimirCardMutirao(${v.id})" class="btn btn-outline-dark btn-sm action-btn" title="Imprimir" aria-label="Imprimir"><i class="bi bi-printer"></i></button></td>`
                 : '';
             tbody.innerHTML += `
                 <tr>
@@ -252,9 +253,11 @@
                     <td>${categoria}</td>
                     <td>${validade}</td>
                     ${imprimirCell}
-                    <td class="text-end">
-                        <button onclick="editarVaga(${v.id})" class="btn btn-outline-secondary btn-sm me-1"><i class="bi bi-pencil"></i></button>
-                        <button onclick="deletarVaga(${v.id})" class="btn btn-danger btn-sm">Excluir</button>
+                    <td class="text-center text-nowrap">
+                        <div class="action-btn-group">
+                            <button type="button" onclick="editarVaga(${v.id})" class="btn btn-outline-secondary btn-sm action-btn" title="Editar" aria-label="Editar"><i class="bi bi-pencil"></i></button>
+                            <button type="button" onclick="deletarVaga(${v.id})" class="btn btn-danger btn-sm action-btn" title="Excluir" aria-label="Excluir"><i class="bi bi-x-lg"></i></button>
+                        </div>
                     </td>
                 </tr>`;
         });
@@ -355,10 +358,78 @@
         document.getElementById('btn-cancelar-edicao').style.display = 'none';
     }
 
-    function deletarVaga(id) {
-        if (!confirm('Deseja realmente excluir?')) return;
-        fetch(`${API_VAGAS}/${id}`, { method: 'DELETE' }).then(() => carregarVagas());
+    function abrirModalExclusao(id) {
+        const vaga = vagasCache.find(item => item.id === id);
+        if (!vaga) return;
+
+        deleteTargetId = id;
+        const isMutirao = moduloAtual === 'MUTIROES';
+        const identificador = isMutirao ? (vaga.empresa || 'Sem empresa') : (vaga.codigo || 'Sem código');
+        const resumo = isMutirao
+            ? (vaga.atribuicoes ? vaga.atribuicoes.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '')
+            : (vaga.titulo || 'Sem título');
+
+        document.getElementById('delete-modal-message').textContent = isMutirao
+            ? 'Deseja realmente excluir este mutirão? Esta ação não pode ser desfeita.'
+            : 'Deseja realmente excluir esta vaga? Esta ação não pode ser desfeita.';
+
+        const previewEl = document.getElementById('delete-modal-preview');
+        previewEl.innerHTML = resumo
+            ? `<strong>${escaparHtml(identificador)}</strong> — ${escaparHtml(resumo)}`
+            : `<strong>${escaparHtml(identificador)}</strong>`;
+
+        const confirmBtn = document.getElementById('btn-confirm-delete');
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Excluir';
+
+        document.getElementById('delete-modal').style.display = 'flex';
+        document.getElementById('btn-cancel-delete').focus();
     }
+
+    function fecharModalExclusao() {
+        deleteTargetId = null;
+        document.getElementById('delete-modal').style.display = 'none';
+    }
+
+    function confirmarExclusao() {
+        if (deleteTargetId === null) return;
+        const id = deleteTargetId;
+        const confirmBtn = document.getElementById('btn-confirm-delete');
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Excluindo...';
+
+        fetch(`${API_VAGAS}/${id}`, { method: 'DELETE' })
+            .then(res => {
+                if (!res.ok) throw new Error('Falha ao excluir registro');
+                if (editId === id) {
+                    sairEdicao();
+                }
+                fecharModalExclusao();
+                carregarVagas();
+            })
+            .catch(() => {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Excluir';
+                alert('Não foi possível excluir o registro. Tente novamente.');
+            });
+    }
+
+    function deletarVaga(id) {
+        abrirModalExclusao(id);
+    }
+
+    document.getElementById('btn-cancel-delete').addEventListener('click', fecharModalExclusao);
+    document.getElementById('btn-confirm-delete').addEventListener('click', confirmarExclusao);
+    document.getElementById('delete-modal').addEventListener('click', function(event) {
+        if (event.target === this) {
+            fecharModalExclusao();
+        }
+    });
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && document.getElementById('delete-modal').style.display === 'flex') {
+            fecharModalExclusao();
+        }
+    });
 
     document.getElementById('btn-cancelar-edicao').addEventListener('click', sairEdicao);
     document.getElementById('busca-vagas').addEventListener('input', function(event) {

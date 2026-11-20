@@ -261,7 +261,7 @@
                             <th id="col-categoria">Categoria</th>
                             <th id="col-validade">Validade</th>
                             <th id="col-imprimir" style="display:none;">Imprimir</th>
-                            <th class="text-end">Ações</th>
+                            <th class="text-center">Ações</th>
                         </tr>
                         </thead>
                         <tbody id="tabela-vagas"></tbody>
@@ -269,6 +269,25 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</div>
+
+<div class="confirm-overlay no-print" id="delete-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+    <div class="confirm-card">
+        <div class="d-flex align-items-start gap-3 mb-3">
+            <div class="confirm-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div>
+                <h3 class="h5 fw-bold mb-1" id="delete-modal-title">Confirmar exclusão</h3>
+                <p class="text-secondary mb-0" id="delete-modal-message">Deseja realmente excluir este registro?</p>
+            </div>
+        </div>
+        <div class="confirm-item-preview mb-4" id="delete-modal-preview"></div>
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-outline-secondary px-3" id="btn-cancel-delete">Cancelar</button>
+            <button type="button" class="btn btn-danger px-3" id="btn-confirm-delete">Excluir</button>
         </div>
     </div>
 </div>
@@ -284,4 +303,3 @@
   <script src="/js/admin.js"></script>
 </body>
 </html>
-
