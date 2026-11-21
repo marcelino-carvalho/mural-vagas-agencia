@@ -29,7 +29,7 @@
   const CACHE_TTL_MS = 60000;
   const CACHE_KEY_PREFIX = "mural_data_cache_v1:";
   const PAINEL_INICIO_MINUTOS = (7 * 60) + 10;
-  const PAINEL_FIM_MINUTOS = (22 * 60) + 0;
+  const PAINEL_FIM_MINUTOS = (17 * 60) + 10;
 
   function painelPodeConsultar(agora = new Date()) {
     const dia = agora.getDay();
