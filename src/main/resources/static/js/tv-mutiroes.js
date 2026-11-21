@@ -46,7 +46,7 @@
   }
 
   const PAINEL_INICIO_MINUTOS = (7 * 60) + 10;
-  const PAINEL_FIM_MINUTOS = (16 * 60) + 0;
+  const PAINEL_FIM_MINUTOS = (22 * 60) + 0;
   let sse = null;
 
   function painelPodeConsultar(agora = new Date()) {

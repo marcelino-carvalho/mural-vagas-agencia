@@ -10,7 +10,7 @@
   const KEEPALIVE_MS = 5 * 60 * 1000;
   const STORAGE_KEY_PREFIX = "tv_cache_v1:";
   const PAINEL_INICIO_MINUTOS = (7 * 60) + 10;
-  const PAINEL_FIM_MINUTOS = (16 * 60) + 0;
+  const PAINEL_FIM_MINUTOS = (22 * 60) + 0;
   const BASE_CATEGORIAS = ["CONVENCIONAL", "SUPERIOR", "PCD", "INFO"];
   let categorias = [...BASE_CATEGORIAS];
 
